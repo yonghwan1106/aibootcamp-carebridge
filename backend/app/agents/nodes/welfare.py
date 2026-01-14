@@ -9,8 +9,31 @@ from app.agents.prompts.welfare import WELFARE_SYSTEM_PROMPT
 from app.services.rag import rag_service
 from app.config import settings
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+
+
+def _clean_response(text: str) -> str:
+    """LLM 응답에서 메타 정보 제거"""
+    # 괄호 안의 메타 설명 제거
+    text = re.sub(r'\(※[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*RAG[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*검색[^)]*결과[^)]*\)', '', text)
+    
+    # *별표* 감싸진 메타 설명 제거
+    text = re.sub(r'\*[^*]+수정[^*]*\*:?', '', text)
+    text = re.sub(r'\*[^*]+응답[^*]*\*:?', '', text)
+    text = re.sub(r'\*[^*]+분석[^*]*\*:?', '', text)
+    
+    # "응답:", "분석:" 등 라벨 제거
+    text = re.sub(r'^(응답|분석|결과|수정|검색)\s*:\s*', '', text.strip())
+    
+    # 여러 공백 정리
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s+([.?!])', r'\1', text)
+    
+    return text.strip()
 
 
 def _get_llm():
@@ -78,18 +101,29 @@ async def welfare_node(state: AgentState) -> AgentState:
         retrieved_docs=rag_context
     )
 
+    # 메타 정보 금지 지시
+    no_meta_instruction = """
+
+중요: 순수 대화 응답만 작성하세요. 다음을 절대 포함하지 마세요:
+- 괄호() 안의 메타 설명이나 주석
+- *별표*로 감싼 설명
+- "응답:", "분석:", "검색결과:" 등의 라벨
+- RAG 검색 과정이나 내부 정보
+오직 어르신께 안내드리는 복지 정보만 작성하세요."""
+
     try:
         llm = _get_llm()
 
         # LLM 호출
         response = await llm.ainvoke([
             SystemMessage(content=system_prompt),
-            HumanMessage(content=f"사용자 질문: {last_message}")
+            HumanMessage(content=f"사용자 질문: {last_message}{no_meta_instruction}")
         ])
 
-        # 응답 메시지 추가
+        # 응답 메시지 추가 (메타 정보 제거)
+        cleaned_response = _clean_response(response.content)
         new_messages = list(messages)
-        new_messages.append(AIMessage(content=response.content))
+        new_messages.append(AIMessage(content=cleaned_response))
 
         logger.info(f"복지 에이전트 응답 생성 완료 - Query: {last_message[:50]}...")
 

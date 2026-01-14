@@ -8,8 +8,34 @@ from app.agents.state import AgentState
 from app.agents.prompts.companion import COMPANION_SYSTEM_PROMPT
 from app.config import settings
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+
+
+def _clean_response(text: str) -> str:
+    """LLM 응답에서 메타 정보 제거"""
+    # 괄호 안의 메타 설명 제거 (※, 감정 반영, 회상 요법, 위험도 등)
+    text = re.sub(r'\(※[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*위험도[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*감정[^)]*반영[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*회상[^)]*요법[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*기법[^)]*적용[^)]*\)', '', text)
+    text = re.sub(r'\([^)]*경청[^)]*\)', '', text)
+    
+    # *별표* 감싸진 메타 설명 제거
+    text = re.sub(r'\*[^*]+수정[^*]*\*:?', '', text)
+    text = re.sub(r'\*[^*]+응답[^*]*\*:?', '', text)
+    text = re.sub(r'\*[^*]+분석[^*]*\*:?', '', text)
+    
+    # "응답:", "분석:" 등 라벨 제거
+    text = re.sub(r'^(응답|분석|결과|수정)\s*:\s*', '', text.strip())
+    
+    # 여러 공백 정리
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s+([.?!])', r'\1', text)
+    
+    return text.strip()
 
 
 def _get_llm():
@@ -65,6 +91,16 @@ async def companion_node(state: AgentState) -> AgentState:
         interests="정보 없음"  # TODO: 장기 기억에서 가져오기
     )
 
+    # 메타 정보 금지 지시 추가
+    no_meta_instruction = """
+
+중요: 순수 대화 응답만 작성하세요. 다음을 절대 포함하지 마세요:
+- 괄호() 안의 메타 설명이나 주석
+- *별표*로 감싼 설명
+- "응답:", "분석:" 등의 라벨
+- 대화 기법 설명 (예: "감정 반영", "회상 요법", "위험도")
+오직 어르신께 드리는 대화 내용만 작성하세요."""
+
     try:
         llm = _get_llm()
 
@@ -77,7 +113,6 @@ async def companion_node(state: AgentState) -> AgentState:
 위기 상황 감지! 사용자가 심각한 정서적 위기 상태입니다.
 
 사용자 발화: "{last_message}"
-감정 분석: {emotion_str}
 
 다음 지침을 따라 응답하세요:
 1. 먼저 따뜻하게 공감 표현
@@ -85,7 +120,7 @@ async def companion_node(state: AgentState) -> AgentState:
 3. 자살예방상담전화 1393 안내
 4. 혼자가 아니라는 메시지 전달
 
-응답은 2-3문장으로 짧고 따뜻하게.
+응답은 2-3문장으로 짧고 따뜻하게.{no_meta_instruction}
 """
             response = await llm.ainvoke([
                 SystemMessage(content=system_prompt),
@@ -100,16 +135,16 @@ async def companion_node(state: AgentState) -> AgentState:
             response = await llm.ainvoke([
                 SystemMessage(content=system_prompt),
                 HumanMessage(content=f"""사용자 발화: "{last_message}"
-감정 분석: {emotion_str}
 
 위 정보를 바탕으로 따뜻하고 공감적인 응답을 해주세요.
 응답은 2-3문장 이내로 짧게, 자연스러운 대화체로 작성하세요.
-마지막에 질문을 넣어 대화를 이어가세요.""")
+마지막에 질문을 넣어 대화를 이어가세요.{no_meta_instruction}""")
             ])
 
-        # 응답 메시지 추가
+        # 응답 메시지 추가 (메타 정보 제거)
+        cleaned_response = _clean_response(response.content)
         new_messages = list(messages)
-        new_messages.append(AIMessage(content=response.content))
+        new_messages.append(AIMessage(content=cleaned_response))
 
         logger.info(f"정서 케어 에이전트 응답 생성 완료 - Emotion: {emotion_str}")
 

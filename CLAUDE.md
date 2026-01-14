@@ -8,20 +8,20 @@ AI 케어브릿지는 65세 이상 시니어를 위한 음성 기반 AI 복지 �
 LangGraph 멀티 에이전트 아키텍처를 활용하여 복지 정보 안내, 정서 케어, 일상 도움을 제공합니다.
 
 ### 주요 기능
-- 🎤 **음성 대화**: STT/TTS 기반 자연스러운 음성 인터페이스
-- 📋 **복지 정보**: RAG 기반 맞춤형 복지 프로그램 검색 및 안내
-- 💬 **정서 케어**: 공감 대화 및 위기 상황 감지
-- 📍 **생활 정보**: 날씨, 일정, 병원 예약 등 일상 도움
+- **음성 대화**: STT/TTS 기반 자연스러운 음성 인터페이스
+- **복지 정보**: RAG 기반 맞춤형 복지 프로그램 검색 및 안내
+- **정서 케어**: 공감 대화 및 위기 상황 감지
+- **생활 정보**: 날씨, 일정, 병원 예약 등 일상 도움
 
 ## 기술 스택
 
 ### Backend
 - **Framework**: FastAPI (Python 3.11+)
-- **LLM**: Upstage Solar Pro 2 (한국어 특화)
+- **LLM**: Upstage Solar Pro 2 (`solar-pro2`)
+- **Embedding**: Upstage Embedding (`solar-embedding-1-large`)
 - **Agent**: LangGraph (멀티 에이전트 오케스트레이션)
 - **Vector DB**: ChromaDB (복지 정보 RAG)
-- **STT**: Upstage Whisper / OpenAI Whisper
-- **TTS**: OpenAI TTS / Edge TTS (한국어)
+- **TTS**: Edge TTS (한국어, ko-KR-SunHiNeural) / OpenAI TTS (폴백)
 
 ### Frontend
 - **Framework**: Next.js 14 (App Router)
@@ -41,42 +41,45 @@ ai-carebridge/
 │   │   │   ├── graph.py         # 에이전트 그래프 정의
 │   │   │   ├── state.py         # 상태 스키마
 │   │   │   ├── nodes/           # 에이전트 노드
-│   │   │   │   ├── supervisor.py
-│   │   │   │   ├── welfare.py   # 복지 에이전트 (RAG)
-│   │   │   │   ├── companion.py # 정서 케어 에이전트
-│   │   │   │   ├── daily.py     # 일상 정보 에이전트
-│   │   │   │   └── memory.py    # 메모리 관리
+│   │   │   │   ├── supervisor.py  # 의도 분류 + 감정 분석
+│   │   │   │   ├── welfare.py     # 복지 에이전트 (RAG)
+│   │   │   │   ├── companion.py   # 정서 케어 에이전트
+│   │   │   │   ├── daily.py       # 일상 정보 에이전트
+│   │   │   │   └── memory.py      # 메모리 관리
 │   │   │   └── prompts/         # 시스템 프롬프트
 │   │   ├── api/routes/          # API 라우트
-│   │   │   ├── chat.py
+│   │   │   ├── chat.py          # 채팅 API
 │   │   │   ├── voice.py         # STT/TTS API
 │   │   │   ├── welfare.py       # 복지 정보 API
-│   │   │   └── health.py
+│   │   │   └── health.py        # 헬스체크
 │   │   ├── services/            # 서비스 레이어
 │   │   │   ├── vectorstore.py   # ChromaDB
-│   │   │   ├── embedding.py     # 임베딩
+│   │   │   ├── embedding.py     # Upstage 임베딩
 │   │   │   ├── rag.py           # RAG 검색
-│   │   │   ├── stt.py           # 음성 인식
 │   │   │   └── tts.py           # 음성 합성
 │   │   └── models/              # Pydantic 모델
 │   ├── data/
-│   │   └── welfare_programs.json # 복지 프로그램 데이터
+│   │   ├── welfare_programs.json  # 복지 프로그램 데이터 (15개)
+│   │   └── chroma_db/             # 벡터 DB 저장소
 │   ├── requirements.txt
 │   └── .env.example
 │
 └── frontend/
     ├── src/
     │   ├── app/
-    │   │   ├── page.tsx         # 메인 페이지
+    │   │   ├── page.tsx           # 메인 페이지
     │   │   ├── layout.tsx
     │   │   ├── globals.css
-    │   │   └── welfare/         # 복지 정보 페이지
+    │   │   ├── companion/         # 말벗 대화 페이지
+    │   │   ├── welfare/           # 복지 정보 페이지
+    │   │   ├── daily/             # 일상 정보 페이지
+    │   │   └── emergency/         # 긴급 연락 페이지
     │   ├── components/
     │   │   ├── Header.tsx
     │   │   ├── QuickMenu.tsx
-    │   │   └── VoiceChat.tsx    # 음성 대화 컴포넌트
+    │   │   └── VoiceChat.tsx      # 음성 대화 컴포넌트
     │   └── lib/
-    │       └── api.ts           # API 클라이언트
+    │       └── api.ts             # API 클라이언트
     ├── tailwind.config.ts
     └── package.json
 ```
@@ -122,20 +125,18 @@ npm run dev
 ```
 
 ### 4. 접속
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:3000 (또는 3001, 3002)
 - Backend API: http://localhost:8000
 - API 문서: http://localhost:8000/docs
 
 ## API 엔드포인트
 
 ### Chat
-- `POST /api/chat/` - 텍스트 대화
+- `POST /api/chat/send` - 텍스트 대화
 
 ### Voice
-- `POST /api/voice/stt` - 음성 → 텍스트
 - `POST /api/voice/tts` - 텍스트 → 음성
-- `POST /api/voice/tts/senior` - 노인 친화적 TTS
-- `POST /api/voice/conversation` - 음성 대화 통합
+- `POST /api/voice/tts/senior` - 노인 친화적 TTS (느린 속도)
 
 ### Welfare (RAG)
 - `POST /api/welfare/rag/search` - 복지 정보 검색
@@ -154,9 +155,31 @@ UPSTAGE_API_KEY=your_upstage_api_key
 # 선택 (TTS용)
 OPENAI_API_KEY=your_openai_api_key
 
+# Upstage 모델 설정
+UPSTAGE_MODEL=solar-pro2
+UPSTAGE_EMBEDDING_MODEL=solar-embedding-1-large-passage
+
 # 기타
 APP_ENV=development
 DEBUG=true
+```
+
+## 에이전트 아키텍처
+
+```
+[사용자 발화]
+     ↓
+[memory_load] → 사용자 프로필 로드
+     ↓
+[supervisor] → 의도 분류 + 감정 분석 (JSON 출력)
+     ↓ (조건부 라우팅)
+┌────┼────┬────┐
+↓    ↓    ↓    ↓
+[welfare] [companion] [daily] [end]
+     ↓
+[memory_save] → 대화 기록 저장
+     ↓
+  [응답] + TTS 음성
 ```
 
 ## 개발 가이드
@@ -170,21 +193,9 @@ DEBUG=true
 1. `backend/data/welfare_programs.json` 파일 수정
 2. `POST /api/welfare/rag/initialize` 호출하여 재인덱싱
 
-### 프론트엔드 페이지 추가
-1. `frontend/src/app/` 디렉토리에 새 폴더/page.tsx 생성
-2. `frontend/src/components/QuickMenu.tsx`에 메뉴 항목 추가
-
-## 테스트
-
-```bash
-# Backend 테스트
-cd backend
-pytest
-
-# Frontend 빌드 테스트
-cd frontend
-npm run build
-```
+### LLM 응답 포맷팅
+- 각 노드에 `_clean_response()` 함수가 메타 정보 자동 제거
+- 프롬프트에 메타 정보 금지 지시 포함
 
 ## 디자인 시스템
 
@@ -202,6 +213,10 @@ npm run build
 - 최소 터치 타겟: 48px
 - 높은 색상 대비
 - 명확한 피드백 애니메이션
+
+## GitHub
+
+- Repository: https://github.com/yonghwan1106/aibootcamp-carebridge
 
 ## 라이선스
 

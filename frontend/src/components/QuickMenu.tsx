@@ -65,44 +65,45 @@ export default function QuickMenu() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full max-w-2xl mx-auto"
+      className="w-full max-w-2xl lg:max-w-4xl mx-auto"
     >
-      <h2 className="text-senior-sm text-text-secondary text-center mb-4 font-medium">
+      <h2 className="text-senior-sm lg:text-senior-base text-text-secondary text-center mb-4 lg:mb-6 font-medium">
         원하시는 메뉴를 선택하세요
       </h2>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* 모바일: 2열 / 데스크탑: 4열 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {menuItems.map((item) => (
           <motion.div key={item.label} variants={itemVariants}>
             <Link href={item.href}>
               <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02, y: -4 }}
                 whileTap={{ scale: 0.98 }}
-                className={`${item.bgColor} rounded-2xl p-5 cursor-pointer
+                className={`${item.bgColor} rounded-2xl p-5 lg:p-6 cursor-pointer
                            border border-white/50 shadow-soft card-hover
-                           flex flex-col gap-3 min-h-[120px]`}
+                           flex flex-col gap-3 min-h-[120px] lg:min-h-[160px]`}
               >
                 {/* 아이콘 */}
                 <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color}
+                  className={`w-12 h-12 lg:w-14 lg:h-14 rounded-xl bg-gradient-to-br ${item.color}
                              flex items-center justify-center shadow-lg`}
                 >
-                  <item.icon className="w-6 h-6 text-white" />
+                  <item.icon className="w-6 h-6 lg:w-7 lg:h-7 text-white" />
                 </div>
 
                 {/* 텍스트 */}
                 <div className="flex-1">
-                  <h3 className="text-senior-base font-bold text-text-primary mb-1">
+                  <h3 className="text-senior-base lg:text-senior-lg font-bold text-text-primary mb-1">
                     {item.label}
                   </h3>
-                  <p className="text-sm text-text-secondary">
+                  <p className="text-sm lg:text-base text-text-secondary">
                     {item.description}
                   </p>
                 </div>
 
                 {/* 화살표 */}
                 <div className="flex justify-end">
-                  <ChevronRight className="w-5 h-5 text-text-muted" />
+                  <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-text-muted" />
                 </div>
               </motion.div>
             </Link>

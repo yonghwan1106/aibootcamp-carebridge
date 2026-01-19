@@ -24,7 +24,7 @@ LangGraph 멀티 에이전트 아키텍처를 활용하여 복지 정보 안내,
 - **TTS**: Edge TTS (한국어, ko-KR-SunHiNeural) / OpenAI TTS (폴백)
 
 ### Frontend
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS
 - **Animation**: Framer Motion
 - **Icons**: Lucide React

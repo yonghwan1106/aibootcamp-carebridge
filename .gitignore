@@ -96,3 +96,5 @@ test_*.mp3
 
 # === Temp Files ===
 tmpclaude-*
+
+.vercel

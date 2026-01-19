@@ -28,26 +28,30 @@ export default function Header() {
 
         {/* 우측 메뉴 */}
         <div className="flex items-center gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-12 h-12 rounded-xl bg-white/50 hover:bg-white/80
-                       flex items-center justify-center transition-colors
-                       shadow-soft"
-            aria-label="도움말"
-          >
-            <HelpCircle className="w-6 h-6 text-text-secondary" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-12 h-12 rounded-xl bg-white/50 hover:bg-white/80
-                       flex items-center justify-center transition-colors
-                       shadow-soft"
-            aria-label="설정"
-          >
-            <Settings className="w-6 h-6 text-text-secondary" />
-          </motion.button>
+          <Link href="/help">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-12 h-12 rounded-xl bg-white/50 hover:bg-white/80
+                         flex items-center justify-center transition-colors
+                         shadow-soft cursor-pointer"
+              aria-label="도움말"
+            >
+              <HelpCircle className="w-6 h-6 text-text-secondary" />
+            </motion.div>
+          </Link>
+          <Link href="/settings">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-12 h-12 rounded-xl bg-white/50 hover:bg-white/80
+                         flex items-center justify-center transition-colors
+                         shadow-soft cursor-pointer"
+              aria-label="설정"
+            >
+              <Settings className="w-6 h-6 text-text-secondary" />
+            </motion.div>
+          </Link>
         </div>
       </div>
     </motion.header>

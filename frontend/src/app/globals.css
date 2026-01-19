@@ -1,17 +1,38 @@
+/* 한옥의 디지털 온기 - Korean Hanok-Inspired Digital Warmth */
+
+/* Noto Serif Korean for elegant headings */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700;900&display=swap');
+/* Pretendard for clean body text */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-@import url('https://cdn.jsdelivr.net/gh/fonts-archive/GmarketSans/GmarketSans.css');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-pretendard: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
-  --font-gmarket: 'GmarketSans', sans-serif;
+  --font-pretendard: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-noto-serif: 'Noto Serif KR', Georgia, 'Times New Roman', serif;
 
-  /* Warm gradient background */
-  --gradient-warm: linear-gradient(135deg, #FFF8F0 0%, #FFEDD5 50%, #FEF3C7 100%);
-  --gradient-sunset: linear-gradient(180deg, #FFF7ED 0%, #FFEDD5 100%);
+  /* 한옥 컬러 팔레트 - Hanok Color Palette */
+  --hanok-cream: #FDF8F3;           /* 한지 크림 - Hanji paper cream */
+  --hanok-warm-white: #FAF6F1;      /* 따뜻한 백색 */
+  --hanok-ochre: #D4A574;           /* 황토 - Yellow ochre */
+  --hanok-terracotta: #C67B5C;      /* 단청 적갈색 - Terracotta red */
+  --hanok-deep-red: #8B4744;        /* 단청 진홍 - Deep dancheong red */
+  --hanok-jade: #5B8A72;            /* 옥색 - Jade green */
+  --hanok-pine: #3D5A4C;            /* 소나무색 - Pine green */
+  --hanok-ink: #2C3E50;             /* 먹색 - Ink black */
+  --hanok-charcoal: #1A2530;        /* 숯색 - Charcoal */
+  --hanok-gold: #D4AF37;            /* 금색 - Gold accent */
+  --hanok-sky: #87CEEB;             /* 하늘색 - Sky blue */
+
+  /* 그라디언트 */
+  --gradient-hanji: linear-gradient(165deg, #FDF8F3 0%, #F5EBE0 40%, #EDE0D4 100%);
+  --gradient-sunset: linear-gradient(180deg, #FDF8F3 0%, rgba(212, 165, 116, 0.1) 50%, rgba(198, 123, 92, 0.08) 100%);
+  --gradient-jade: linear-gradient(135deg, rgba(91, 138, 114, 0.1) 0%, rgba(61, 90, 76, 0.05) 100%);
+
+  /* 한지 텍스처 */
+  --texture-hanji: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
 * {
@@ -27,155 +48,533 @@ html {
 
 body {
   font-family: var(--font-pretendard);
-  background: var(--gradient-warm);
+  background: var(--gradient-hanji);
   min-height: 100vh;
-  color: #1F2937;
+  color: var(--hanok-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
 }
 
-/* 노인 친화적 포커스 스타일 */
+/* 한지 텍스처 오버레이 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--texture-hanji);
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 노인 친화적 포커스 스타일 - 옥색 테두리 */
 :focus-visible {
-  outline: 3px solid #F97316;
-  outline-offset: 2px;
-  border-radius: 8px;
+  outline: 3px solid var(--hanok-jade);
+  outline-offset: 3px;
+  border-radius: 12px;
 }
 
-/* 부드러운 스크롤바 */
+/* 전통 문양 스크롤바 */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5EEE1;
-  border-radius: 6px;
+  background: linear-gradient(180deg, #F5EBE0 0%, #EDE0D4 100%);
+  border-radius: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #DBC9A6;
-  border-radius: 6px;
-  border: 2px solid #F5EEE1;
+  background: linear-gradient(180deg, var(--hanok-ochre) 0%, var(--hanok-terracotta) 100%);
+  border-radius: 7px;
+  border: 3px solid #F5EBE0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9B282;
+  background: linear-gradient(180deg, var(--hanok-terracotta) 0%, var(--hanok-deep-red) 100%);
 }
 
 /* 큰 터치 타겟 기본 스타일 */
 button, a {
   min-height: 48px;
-  min-width: 48px;
 }
 
-/* 애니메이션 */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ===== 애니메이션 ===== */
+
+/* 자연스러운 등장 */
+@keyframes hanok-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+/* 부드러운 확대 */
+@keyframes hanok-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+/* 처마 곡선 느낌의 슬라이드 */
+@keyframes hanok-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotate(-1deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
 }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.1); opacity: 0.4; }
-  100% { transform: scale(0.9); opacity: 0.8; }
+/* 바람에 흔들리는 듯한 움직임 */
+@keyframes gentle-sway {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+/* 호흡하는 듯한 펄스 */
+@keyframes breath-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
-.animate-scale-in {
-  animation: scaleIn 0.4s ease-out forwards;
+/* 물결 효과 - 연못의 파문 */
+@keyframes ripple-spread {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
 }
 
-.animate-slide-up {
-  animation: slideUp 0.6s ease-out forwards;
+/* 부드러운 떠오름 */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
 }
 
-/* 물결 효과 */
-.ripple {
+/* 손 인사 애니메이션 */
+@keyframes wave-hand {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(25deg); }
+  75% { transform: rotate(-15deg); }
+}
+
+.animate-hanok-fade {
+  animation: hanok-fade-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-hanok-scale {
+  animation: hanok-scale-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-hanok-slide {
+  animation: hanok-slide-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-sway {
+  animation: gentle-sway 4s ease-in-out infinite;
+}
+
+.animate-breath {
+  animation: breath-pulse 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float-gentle 5s ease-in-out infinite;
+}
+
+.animate-wave-hand {
+  animation: wave-hand 2s ease-in-out infinite;
+  transform-origin: 70% 70%;
+}
+
+/* ===== 한옥 스타일 컴포넌트 ===== */
+
+/* 한지 카드 */
+.hanok-card {
+  background: linear-gradient(145deg,
+    rgba(253, 248, 243, 0.95) 0%,
+    rgba(245, 235, 224, 0.9) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow:
+    0 4px 24px -4px rgba(139, 71, 68, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
   position: relative;
   overflow: hidden;
 }
 
-.ripple::after {
+.hanok-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--hanok-terracotta) 0%,
+    var(--hanok-ochre) 50%,
+    var(--hanok-jade) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hanok-card:hover::before {
+  opacity: 1;
+}
+
+.hanok-card-hover {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hanok-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 48px -8px rgba(139, 71, 68, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 단청 그라디언트 버튼 */
+.hanok-button-primary {
+  background: linear-gradient(135deg,
+    var(--hanok-terracotta) 0%,
+    var(--hanok-deep-red) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow:
+    0 4px 16px -2px rgba(139, 71, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.hanok-button-primary::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 50%
+  );
   opacity: 0;
-  transform: scale(0);
-  transition: transform 0.5s, opacity 0.5s;
+  transition: opacity 0.3s ease;
 }
 
-.ripple:active::after {
-  transform: scale(2);
+.hanok-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px -4px rgba(139, 71, 68, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.hanok-button-primary:hover::before {
   opacity: 1;
-  transition: 0s;
 }
 
-/* 카드 호버 효과 */
-.card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.hanok-button-primary:active {
+  transform: translateY(0);
 }
 
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px -8px rgba(249, 115, 22, 0.2);
+/* 옥색 보조 버튼 */
+.hanok-button-secondary {
+  background: linear-gradient(135deg,
+    var(--hanok-jade) 0%,
+    var(--hanok-pine) 100%
+  );
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow:
+    0 4px 16px -2px rgba(61, 90, 76, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* 녹음 버튼 펄스 */
-.recording-pulse {
-  animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.hanok-button-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px -4px rgba(61, 90, 76, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* 그라디언트 텍스트 */
-.gradient-text {
-  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+/* 한지 텍스트 입력 */
+.hanok-input {
+  background: rgba(253, 248, 243, 0.8);
+  border: 2px solid rgba(212, 165, 116, 0.3);
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 1.125rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hanok-input:focus {
+  border-color: var(--hanok-jade);
+  box-shadow: 0 0 0 4px rgba(91, 138, 114, 0.15);
+  outline: none;
+}
+
+/* 전통 구분선 */
+.hanok-divider {
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--hanok-ochre) 20%,
+    var(--hanok-terracotta) 50%,
+    var(--hanok-ochre) 80%,
+    transparent 100%
+  );
+  border: none;
+  margin: 24px 0;
+}
+
+/* 그라디언트 텍스트 - 단청 스타일 */
+.hanok-gradient-text {
+  background: linear-gradient(135deg,
+    var(--hanok-terracotta) 0%,
+    var(--hanok-deep-red) 50%,
+    var(--hanok-ochre) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* 글래스 효과 */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+/* 옥색 그라디언트 텍스트 */
+.jade-gradient-text {
+  background: linear-gradient(135deg,
+    var(--hanok-jade) 0%,
+    var(--hanok-pine) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* 음성 파형 애니메이션 */
-.voice-wave {
+/* 음성 버튼 글로우 */
+.voice-glow {
+  box-shadow:
+    0 0 60px -10px rgba(198, 123, 92, 0.5),
+    0 0 100px -20px rgba(212, 165, 116, 0.3);
+}
+
+.voice-glow-active {
+  box-shadow:
+    0 0 80px -10px rgba(139, 71, 68, 0.6),
+    0 0 120px -20px rgba(198, 123, 92, 0.4);
+}
+
+/* 물결 효과 - 클릭 시 */
+.hanok-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.hanok-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+    rgba(212, 165, 116, 0.4) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hanok-ripple:active::after {
+  transform: scale(2.5);
+  opacity: 1;
+  transition: 0s;
+}
+
+/* 음성 파형 - 한옥 색상 */
+.hanok-voice-wave {
   display: flex;
   align-items: center;
-  gap: 3px;
-  height: 32px;
+  gap: 4px;
+  height: 36px;
 }
 
-.voice-wave span {
-  width: 4px;
-  background: #F97316;
-  border-radius: 2px;
-  animation: wave-bar 1s ease-in-out infinite;
+.hanok-voice-wave span {
+  width: 5px;
+  background: linear-gradient(180deg, var(--hanok-terracotta) 0%, var(--hanok-deep-red) 100%);
+  border-radius: 3px;
+  animation: wave-bar 1.2s ease-in-out infinite;
 }
 
-.voice-wave span:nth-child(1) { animation-delay: 0s; height: 40%; }
-.voice-wave span:nth-child(2) { animation-delay: 0.1s; height: 70%; }
-.voice-wave span:nth-child(3) { animation-delay: 0.2s; height: 100%; }
-.voice-wave span:nth-child(4) { animation-delay: 0.3s; height: 60%; }
-.voice-wave span:nth-child(5) { animation-delay: 0.4s; height: 30%; }
+.hanok-voice-wave span:nth-child(1) { animation-delay: 0s; height: 35%; }
+.hanok-voice-wave span:nth-child(2) { animation-delay: 0.15s; height: 65%; }
+.hanok-voice-wave span:nth-child(3) { animation-delay: 0.3s; height: 100%; }
+.hanok-voice-wave span:nth-child(4) { animation-delay: 0.45s; height: 55%; }
+.hanok-voice-wave span:nth-child(5) { animation-delay: 0.6s; height: 25%; }
 
 @keyframes wave-bar {
-  0%, 100% { transform: scaleY(0.5); }
+  0%, 100% { transform: scaleY(0.4); }
   50% { transform: scaleY(1); }
+}
+
+/* 아이콘 배경 - 전통 문양 */
+.hanok-icon-bg {
+  background: linear-gradient(135deg,
+    rgba(212, 165, 116, 0.15) 0%,
+    rgba(198, 123, 92, 0.1) 100%
+  );
+  border: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.hanok-icon-bg-jade {
+  background: linear-gradient(135deg,
+    rgba(91, 138, 114, 0.15) 0%,
+    rgba(61, 90, 76, 0.1) 100%
+  );
+  border: 1px solid rgba(91, 138, 114, 0.2);
+}
+
+/* 배지/태그 스타일 */
+.hanok-badge {
+  background: linear-gradient(135deg, var(--hanok-terracotta), var(--hanok-deep-red));
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(139, 71, 68, 0.25);
+}
+
+.hanok-badge-jade {
+  background: linear-gradient(135deg, var(--hanok-jade), var(--hanok-pine));
+  box-shadow: 0 2px 8px rgba(61, 90, 76, 0.25);
+}
+
+/* 전통 테두리 장식 */
+.hanok-border-accent {
+  position: relative;
+}
+
+.hanok-border-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--hanok-ochre),
+    var(--hanok-terracotta),
+    var(--hanok-ochre),
+    transparent
+  );
+  border-radius: 2px;
+}
+
+/* 부드러운 그림자 레이어 */
+.hanok-shadow-soft {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 4px 8px rgba(0, 0, 0, 0.02),
+    0 8px 16px rgba(0, 0, 0, 0.02),
+    0 16px 32px rgba(139, 71, 68, 0.04);
+}
+
+.hanok-shadow-elevated {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.03),
+    0 8px 16px rgba(0, 0, 0, 0.03),
+    0 16px 32px rgba(0, 0, 0, 0.03),
+    0 24px 48px rgba(139, 71, 68, 0.06);
+}
+
+/* 알림 도트 */
+.notification-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: var(--hanok-deep-red);
+  border-radius: 50%;
+  border: 2px solid var(--hanok-cream);
+  animation: breath-pulse 2s ease-in-out infinite;
+}
+
+/* 로딩 스피너 - 전통 문양 */
+.hanok-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(212, 165, 116, 0.2);
+  border-top-color: var(--hanok-terracotta);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 반응형 유틸리티 */
+@media (max-width: 1024px) {
+  .hanok-card {
+    border-radius: 16px;
+  }
+}
+
+/* 접근성 - 고대비 모드 */
+@media (prefers-contrast: high) {
+  .hanok-card {
+    border-width: 2px;
+    border-color: var(--hanok-ink);
+  }
+
+  .hanok-button-primary,
+  .hanok-button-secondary {
+    border: 2px solid currentColor;
+  }
+}
+
+/* 모션 감소 설정 존중 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

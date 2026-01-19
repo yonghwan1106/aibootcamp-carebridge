@@ -12,7 +12,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ - 주석처리 (frontend/src/lib 충돌 방지)
 lib64/
 parts/
 sdist/

@@ -55,6 +55,19 @@ class STTService:
         # 로컬 Whisper 폴백
         return await self._transcribe_local(audio_bytes, language)
 
+    def _get_mime_type(self, filename: str) -> str:
+        """파일 확장자에 따른 MIME 타입 반환"""
+        ext = filename.lower().split(".")[-1] if "." in filename else "wav"
+        mime_types = {
+            "wav": "audio/wav",
+            "mp3": "audio/mpeg",
+            "webm": "audio/webm",
+            "ogg": "audio/ogg",
+            "m4a": "audio/mp4",
+            "mp4": "audio/mp4",
+        }
+        return mime_types.get(ext, "audio/wav")
+
     async def _transcribe_upstage(
         self,
         audio_bytes: bytes,
@@ -64,8 +77,9 @@ class STTService:
         """Upstage Whisper API로 변환"""
         async with httpx.AsyncClient(timeout=60.0) as client:
             # 멀티파트 폼 데이터 구성
+            mime_type = self._get_mime_type(filename)
             files = {
-                "file": (filename, audio_bytes, "audio/wav"),
+                "file": (filename, audio_bytes, mime_type),
             }
             data = {
                 "model": "whisper-1",
@@ -95,8 +109,9 @@ class STTService:
     ) -> Tuple[str, float]:
         """OpenAI Whisper API로 변환"""
         async with httpx.AsyncClient(timeout=60.0) as client:
+            mime_type = self._get_mime_type(filename)
             files = {
-                "file": (filename, audio_bytes, "audio/wav"),
+                "file": (filename, audio_bytes, mime_type),
             }
             data = {
                 "model": "whisper-1",

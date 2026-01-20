@@ -97,14 +97,32 @@ export default function VoiceChat({ onClose }: VoiceChatProps) {
     setIsSpeaking(false);
   };
 
+  // 지원되는 오디오 MIME 타입 확인
+  const getSupportedMimeType = (): string => {
+    const types = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus",
+      "audio/wav",
+    ];
+    for (const type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+    return "audio/webm"; // 기본값
+  };
+
   // 녹음 시작
   const startRecording = async () => {
     try {
       setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
+      const mimeType = getSupportedMimeType();
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
+        mimeType,
       });
 
       mediaRecorderRef.current = mediaRecorder;
@@ -117,7 +135,7 @@ export default function VoiceChat({ onClose }: VoiceChatProps) {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         stream.getTracks().forEach((track) => track.stop());
         await processAudio(audioBlob);
       };
